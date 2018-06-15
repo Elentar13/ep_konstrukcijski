@@ -260,7 +260,7 @@ Zi_M = 0;
 Z0_M = 0;
 
 %ZA TABLICE
-syms tablica_pg tablica_pt_dn tablica_pzv tablica_pk tablica_am tablica_m;
+syms tablica_pg tablica_pt_dn tablica_pzv tablica_pk tablica_pam tablica_pm;
 
 % GENERATORI %
 
@@ -596,8 +596,8 @@ Zd_am = Zd_am.';
 Zi_am = Zi_am.';
 Z0_am = Z0_am.';
 
-tablica_am = table(Xd_am, Xi_am, X0_am, Rd_am, Ri_am, R0_am, Zd_am, Zi_am, Z0_am, 'VariableNames', {'Xd' 'Xi' 'X0' 'Rd' 'Ri' 'R0' 'Zd' 'Zi' 'Z0'}, 'RowNames', {'A1' 'A2'});
-disp(tablica_am)
+tablica_pam = table(Xd_am, Xi_am, X0_am, Rd_am, Ri_am, R0_am, Zd_am, Zi_am, Z0_am, 'VariableNames', {'Xd' 'Xi' 'X0' 'Rd' 'Ri' 'R0' 'Zd' 'Zi' 'Z0'}, 'RowNames', {'A1' 'A2'});
+disp(tablica_pam)
 
 % MOTORI (2/4 IZ MOJE TABLICE SU BILI U MREŽI %
 
@@ -623,5 +623,229 @@ Z0_M = Z0_M.';
 
 % PRILAGODITI VARIJABLE U TABLICI I ROWNAMES AKO IMA VIŠE/MANJE MOTORA
 
-tablica_m = table(Xd_M, Xi_M, X0_M, Zd_M, Zi_M, Z0_M, 'VariableNames', {'Xd' 'Xi' 'X0' 'Zd' 'Zi' 'Z0'}, 'RowNames', {'M1' 'M2'});
-disp(tablica_m)
+tablica_pm = table(Xd_M, Xi_M, X0_M, Zd_M, Zi_M, Z0_M, 'VariableNames', {'Xd' 'Xi' 'X0' 'Zd' 'Zi' 'Z0'}, 'RowNames', {'M1' 'M2'});
+disp(tablica_pm)
+
+% PRORAÈUN PO K.S. %
+
+fprintf('\n[============ IZRAÈUNATE INPEDANCIJE ============]\n\n')
+
+syms Zd Zi Z0;
+
+Zd = 3.1707+1.4191i     %IZRAÈUNATI I UNESTI
+Zi = Zd
+Z0 = 96.4064+13.99i
+
+fprintf('\n[============ 2pz K.S. ============]\n\n')
+
+syms Ed a Ik2pz Ids Ii I0 Is It Vd Vi V0 VR;
+
+a = 0;
+Ed = 0;
+
+Ed = Uref/sqrt(3);
+a = -0.5+(sqrt(3)/2)*i;
+
+Ik2pz = 0;
+Ids = 0;
+Ii = 0;
+I0 = 0;
+Is = 0;
+It = 0;
+Vd = 0;
+Vi = 0;
+V0 = 0;
+VR = 0;
+
+
+Ik2pz = -(sqrt(3)*Uref*Zi)/(Zd*Zi+Zd*Z0+Zi*Z0);
+fprintf('IK2pz = %f <%f\n\n', abs(Ik2pz), (180/pi)*angle(Ik2pz))
+
+Ids = Ed*(Z0+Zi)/(Zd*Zi+Zd*Z0+Zi*Z0);
+fprintf('Id = %f <%f\n\n', abs(Ids), (180/pi)*angle(Ids))
+
+Ii = -Ed*Z0/(Zd*Zi+Zd*Z0+Zi*Z0);
+fprintf('Ii = %f <%f\n\n', abs(Ii), (180/pi)*angle(Ii))
+
+I0 = -Ed*Zi/(Zd*Zi+Zd*Z0+Zi*Z0);
+fprintf('I0 = %f <%f\n\n', abs(I0), (180/pi)*angle(I0))
+
+Is = Ed*(Zi*(a^2-1)+Z0*(a^2-a))/(Zd*Zi+Zd*Z0+Zi*Z0);
+fprintf('Is = %f <%f\n\n', abs(Is), (180/pi)*angle(Is))
+
+It = Ed*(Zi*(a-1)+Z0*(a-a^2))/(Zd*Zi+Zd*Z0+Zi*Z0);
+fprintf('It = %f <%f\n\n', abs(It), (180/pi)*angle(It))
+
+Vd = Ed-Ids*Zd;
+fprintf('Vd = %f <%f\n\n', abs(Vd), (180/pi)*angle(Vd))
+
+Vi = -Ii*Zi;
+fprintf('Vi = %f <%f\n\n', abs(Vi), (180/pi)*angle(Vi))
+
+V0 = -I0*Z0;
+fprintf('V0 = %f <%f\n\n', abs(V0), (180/pi)*angle(V0))
+
+VR = Vd+Vi+V0;
+fprintf('VR = %f <%f\n\n', abs(VR), (180/pi)*angle(VR))
+
+
+% DIREKTNI %
+
+fprintf('\n[============ UDIO STRUJA K.S. - DIREKTNI ============]\n\n')
+
+syms Zam Zg Zm Iam U6 Ig Ukl Im I5 U5 U4;
+
+Zam = 0;
+Zg = 0;
+Zm = 0;
+Iam = 0;
+U6 = 0;
+Ig = 0;
+Ukl = 0;
+Im = 0;
+I5 = 0;
+U5 = 0;
+U4 = 0;
+
+Zam = [Zd_am(1) + ((Zd1_T(1)+Zd2_T(1))*(Zd1_T(2)+Zd2_T(2))/((Zd1_T(1)+Zd2_T(1))+(Zd1_T(2)+Zd2_T(2)))) + ((Zd_v(1)*Zd_v(1))/(Zd_v(1)+Zd_v(1))) + Zd_v(2); Zd_am(2)];
+Zg = [Zds_G(1)+Zd_T(1); Zds_G(3)];
+Zm = ((Zd_M(1)*Zd_M(2))/(Zd_M(1)+Zd_M(2)))+Zd_k(1);
+
+U6 = Vd + Ids*(Zd_k(1)+Zd_k(2));   %PREKO K.Z. I NAPONA ÈVOROVA
+Ig(2) = (Ed-U6)/Zg(2);
+Uk1 = (U6*(1/Zd_k(1)))/(1/Zd_M(1)+1/Zd_M(2)+1/Zd_k(1));
+
+Im(1) = (Uk1-Ed)/Zd_M(1);
+Im(2) = (Uk1-Ed)/Zd_M(2);
+Im = Im.';
+
+I5 = Ids + (Im(1)+Im(2)) + Ig(2);
+
+U5 = (I5+((Ed/Zam(1))*Zd_v(3)))/(1/Zam(1)+1/Zg(1)+Zd_v(3))/(1/Zam(2)+1/Zd_v(3)+1/((Zd_T(3)*Zd_T(4))/(Zd_T(3)+Zd_T(4)))-(1/Zd_v(3))^2/(1/Zam(1)+1/Zg(1)+1/Zd_v(3)));
+U4 = (U5*(1/Zd_v(3))+(Ed/Zam(1)))/(1/Zam(1)+1/Zg(1)+Zd_v(3));
+
+Iam(1) = (Ed-U4)/Zam(1);
+Iam(2) = (U5-Ed)/Zam(2);
+Iam = Iam.';
+
+Ig(1) = (U5-Ed)/Zg(1);
+Ig = Ig.';
+
+for n = 1:2
+    fprintf('Im%i = %f <%f\n\n', n, abs(Im(n)), (180/pi)*angle(Im(n)))
+end
+
+for n = 1:2
+    fprintf('Ig%i = %f <%f\n\n', n, abs(Ig(n)), (180/pi)*angle(Ig(n)))
+end
+
+for n = 1:2
+    fprintf('Iam%i = %f <%f\n\n', n, abs(Iam(n)), (180/pi)*angle(Iam(n)))
+end
+
+% INVERZNI %
+
+fprintf('\n[============ UDIO STRUJA K.S. - INVERZNI ============]\n\n')
+
+syms Iami Igi Imi I5i U5i U4i
+
+
+Iami = 0;
+Igi = 0;
+Imi = 0;
+I5i = 0;
+U5i = 0;
+U4i = 0;
+U6i = 0;
+
+U6i = Vd + Ii*(Zd_k(1)+Zd_k(2));
+
+Igi(2) = U6i/Zg(2);
+
+Imi(1) = Uk1/Zd_M(1);
+Imi(2) = Uk1/Zd_M(2);
+Imi = Imi.';
+
+I5i = Ids + (Imi(1)+Imi(2)) + Igi(2);
+
+U5i = I5i/(1/Zam(2)+1/Zd_v(3)+1/((Zd_T(3)*Zd_T(4))/(Zd_T(3)+Zd_T(4)))-(1/Zd_v(3))^2/(1/Zam(1)+1/Zg(1)+1/Zd_v(3)));
+U4i = (U5i*(1/Zd_v(3))+(Ed/Zam(1)))/(1/Zam(1)+1/Zg(1)+Zd_v(3));
+
+Iami(1) = U4i/Zam(1);
+Iami(2) = U5i/Zam(2);
+Iami = Iami.';
+
+Igi(1) = U5i/Zg(1);
+Igi = Igi.';
+
+for n = 1:2
+    fprintf('Imi%i = %f <%f\n\n', n, abs(Imi(n)), (180/pi)*angle(Imi(n)))
+end
+
+for n = 1:2
+    fprintf('Igi%i = %f <%f\n\n', n, abs(Igi(n)), (180/pi)*angle(Igi(n)))
+end
+
+for n = 1:2
+    fprintf('Iami%i = %f <%f\n\n', n, abs(Iami(n)), (180/pi)*angle(Iami(n)))
+end
+
+% UKUPNI UDJELI &
+
+for n = 1:2
+    fprintf('\n[============ UDIO STRUJA K.S. - UKUPNI (AM%i) ============]\n\n', n)
+
+    IAR(n) = (Iam(n)+Iami(n))*(Uref/U_am(n));
+    fprintf('IA%iR = %f <%f\n\n', n, abs(IAR(n)), (180/pi)*angle(IAR(n)))
+
+    IAS(n) = (a^2*Iam(n)+a*Iami(n))*(Uref/U_am(n));
+    fprintf('IA%iS = %f <%f\n\n', n, abs(IAS(n)), (180/pi)*angle(IAS(n)))
+
+    IAT(n) = (a*Iam(n)+a^2*Iami(n))*(Uref/U_am(n));
+    fprintf('IA%iT = %f <%f\n\n', n, abs(IAT(n)), (180/pi)*angle(IAT(n)))
+end
+
+
+fprintf('\n[============ UDIO STRUJA K.S. - UKUPNI (G1) ============]\n\n', n)
+
+    IGR(1) = (Iam(1)*exp(-5*pi/6)+Iami(1)*exp(-5*pi/6))*(Uref/Un_G(1));
+    fprintf('IG1R = %f <%f\n\n', abs(IGR(1)), (180/pi)*angle(IGR(1)))
+
+    IGS(1) = (a^2*Iam(1)*exp(-5*pi/6)+a*Iami(1)*exp(-5*pi/6))*(Uref/Un_G(1));
+    fprintf('IG1S = %f <%f\n\n', abs(IGS(1)), (180/pi)*angle(IGS(1)))
+
+    IGT(1) = (a*Iam(1)*exp(-5*pi/6)+a^2*Iami(1)*exp(-5*pi/6))*(Uref/Un_G(1));
+    fprintf('IG1T = %f <%f\n\n', abs(IGT(1)), (180/pi)*angle(IGT(1)))
+    
+fprintf('\n[============ UDIO STRUJA K.S. - UKUPNI (G2) ============]\n\n', n)
+
+    IGR(2) = (Iam(2)*exp(-5*pi/6)+Iami(2)*exp(-5*pi/6))*(Uref/Un_G(3));
+    fprintf('IG2R = %f <%f\n\n', abs(IGR(2)), (180/pi)*angle(IGR(2)))
+
+    IGS(2) = (a^2*Iam(2)*exp(-5*pi/6)+a*Iami(1)*exp(-5*pi/6))*(Uref/Un_G(3));
+    fprintf('IG2S = %f <%f\n\n', abs(IGS(2)), (180/pi)*angle(IGS(2)))
+
+    IGT(2) = (a*Iam(2)*exp(-5*pi/6)+a^2*Iami(1)*exp(-5*pi/6))*(Uref/Un_G(3));
+    fprintf('IG2T = %f <%f\n\n', abs(IGT(2)), (180/pi)*angle(IGT(2)))
+
+fprintf('\n[============ UDIO STRUJA K.S. - UKUPNI (M1) ============]\n\n', n)
+
+    IMR(1) = (Im(1)+Imi(1))*(Uref/U_m(1));
+    fprintf('IM1R = %f <%f\n\n', abs(IMR(1)), (180/pi)*angle(IMR(1)))
+
+    IMS(1) = (a^2*Im(1)+a*Imi(1))*(Uref/U_m(1));
+    fprintf('IM1S = %f <%f\n\n', abs(IMS(1)), (180/pi)*angle(IMS(1)))
+
+    IMT(1) = (a*Im(1)+a^2*Imi(1))*(Uref/U_m(1));
+    fprintf('IM1T = %f <%f\n\n', abs(IMT(1)), (180/pi)*angle(IMT(1)))
+    
+fprintf('\n[============ UDIO STRUJA K.S. - UKUPNI (M2) ============]\n\n', n)
+
+    IMR(2) = (Im(2)+Imi(2))*(Uref/U_m(2));
+    fprintf('IM2R = %f <%f\n\n', abs(IMR(2)), (180/pi)*angle(IMR(2)))
+
+    IMS(2) = (a^2*Im(2)+a*Imi(2))*(Uref/U_m(2));
+    fprintf('IM2S = %f <%f\n\n', abs(IMS(2)), (180/pi)*angle(IMS(2)))
+
+    IMT(2) = (a*Im(2)+a^2*Imi(2))*(Uref/U_m(2));
+    fprintf('IM2T = %f <%f\n\n', abs(IMT(2)), (180/pi)*angle(IMT(2)))
